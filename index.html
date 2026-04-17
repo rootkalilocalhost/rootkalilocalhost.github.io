@@ -4,9 +4,10 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h1>TEST</h1>
+    <h1>Loading...</h1>
     <script>
-        const BACKEND = "https://sturdy-umbrella-g4qxgpv5v4xw3v67w-8080.preview.app.github.dev";
+        // 
+        const BACKEND = "https://sturdy-umbrella-g4qxgpv5v4xw3v67w-5000.app.github.dev/";
         
         const tg = window.Telegram.WebApp;
         tg.ready();
@@ -19,7 +20,7 @@
             }
         });
         
-        document.body.innerHTML += "<p>Data sent to " + BACKEND + "</p>";
+        document.body.innerHTML = "<h1>App loaded</h1><p>Welcome!</p>";
     </script>
 </body>
 </html>
